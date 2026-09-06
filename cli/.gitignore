@@ -37,3 +37,6 @@ exports/
 .DS_Store
 Thumbs.db
 Desktop.ini
+
+# ContextBridge local config (contains project ID)
+.contextbridge/config.json

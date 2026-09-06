@@ -7,6 +7,7 @@ const { writeLocalConfig, ensureGitignore, DEFAULT_BACKEND } = require('../lib/c
 const { fetchProjects, pingBackend } = require('../lib/api')
 const { writeFile } = require('../lib/files')
 const { formatRequestError } = require('../lib/errors')
+const { validateBackendUrl } = require('../lib/validate')
 const detector = require('../lib/project-detector')
 
 function prompt(rl, question) {
@@ -133,17 +134,31 @@ async function init(options) {
       await prompt(rl, chalk.cyan(`  Project name [${detected.project_name}]: `))
     ).trim() || detected.project_name
 
-    const backendUrl = (
-      await prompt(rl, chalk.cyan(`  Backend URL [${DEFAULT_BACKEND}]: `))
-    ).trim() || DEFAULT_BACKEND
+    const backendUrl = options.backend
+      ? options.backend.trim()
+      : (
+          await prompt(rl, chalk.cyan(`  Backend URL [${DEFAULT_BACKEND}]: `))
+        ).trim() || DEFAULT_BACKEND
+
+    if (options.backend) {
+      console.log(chalk.dim(`  Backend URL : ${backendUrl} (from --backend)`))
+    }
+
+    const backendCheck = validateBackendUrl(backendUrl)
+    if (!backendCheck.valid) {
+      console.log(chalk.red(`  ✗ ${backendCheck.message}`))
+      rl.close(); process.exit(1)
+    }
 
     const connectSpinner = ora('  Connecting to ContextBridge backend...').start()
     try {
       await pingBackend(backendUrl)
       connectSpinner.succeed(chalk.green('  Backend connected'))
-    } catch {
+    } catch (err) {
       connectSpinner.fail(chalk.red(`  Cannot reach backend at ${backendUrl}`))
-      console.log(chalk.dim('\n  uvicorn app.main:app --reload --port 8000\n'))
+      console.log()
+      console.log(formatRequestError(err, backendUrl))
+      console.log()
       rl.close(); process.exit(1)
     }
 
@@ -226,7 +241,8 @@ async function init(options) {
 
   } catch (err) {
     rl.close()
-    console.error(chalk.red('\n  ✗ Init failed: ') + err.message)
+    console.log()
+    console.error(formatRequestError(err, options.backend || DEFAULT_BACKEND))
     process.exit(1)
   }
 }

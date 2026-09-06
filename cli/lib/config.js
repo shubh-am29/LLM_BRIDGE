@@ -52,16 +52,26 @@ function writeLocalConfig(data) {
 }
 
 function requireLocalConfig() {
+  const chalk = require('chalk')
+  const { validateLocalConfig } = require('./validate')
+
   const cfg = readLocalConfig()
   if (!cfg) {
     console.error(
-      require('chalk').red(
+      chalk.red(
         '✗ No .contextbridge/config.json found.\n' +
         '  Run contextbridge init first.'
       )
     )
     process.exit(1)
   }
+
+  const check = validateLocalConfig(cfg)
+  if (!check.valid) {
+    console.error(chalk.red(`✗ ${check.message}`))
+    process.exit(1)
+  }
+
   return cfg
 }
 
@@ -74,7 +84,17 @@ function requireLocalConfig() {
 //   4. DEFAULT_BACKEND
 function getBackendUrl() {
   if (process.env.CONTEXTBRIDGE_API_URL) {
-    return process.env.CONTEXTBRIDGE_API_URL
+    const envUrl = process.env.CONTEXTBRIDGE_API_URL.trim()
+    const { validateBackendUrl } = require('./validate')
+    const check = validateBackendUrl(envUrl)
+    if (check.valid) {
+      return envUrl
+    }
+    console.error(
+      require('chalk').yellow(
+        `⚠ CONTEXTBRIDGE_API_URL is set but invalid (${check.message}). Ignoring it.`
+      )
+    )
   }
   const local  = readLocalConfig()
   const global = readGlobalConfig()

@@ -11,7 +11,7 @@ The executable is named `ctxbridge`. It can initialize a project link, synchroni
 - A running ContextBridge backend
 - A project already created in ContextBridge
 
-The CLI uses `http://127.0.0.1:8000` as the default backend URL.
+The CLI resolves the backend URL in this order: `CONTEXTBRIDGE_API_URL` environment variable → `.contextbridge/config.json` (set by `ctxbridge init`) → global config (`~/.contextbridge/config.json`) → the default, `http://127.0.0.1:8000`.
 
 ## Installation
 
@@ -48,12 +48,19 @@ ctxbridge init
 ctxbridge sync
 ctxbridge status
 ctxbridge export
+ctxbridge health
 ```
 
 During initialization, the CLI checks the backend, lists available projects, and prompts you to select one. To provide a different backend URL without the prompt:
 
 ```bash
 ctxbridge init --backend http://127.0.0.1:8000
+```
+
+Or override the backend URL for any command via the environment variable:
+
+```bash
+CONTEXTBRIDGE_API_URL=http://127.0.0.1:8000 ctxbridge health
 ```
 
 ## Commands
@@ -104,6 +111,23 @@ ctxbridge export --root
 
 The `--root` option also writes `AGENT-CONTEXT.md` to the current project root.
 
+### `ctxbridge health`
+
+Checks connectivity to the ContextBridge backend without needing a linked project. Uses the same backend URL resolution as every other command (`CONTEXTBRIDGE_API_URL` → local config → global config → default).
+
+```bash
+ctxbridge health
+CONTEXTBRIDGE_API_URL=http://127.0.0.1:8000 ctxbridge health
+```
+
+Expected output:
+
+```text
+✓ ContextBridge backend is connected
+Backend : http://127.0.0.1:8000
+Status  : ok
+```
+
 ### Help and version
 
 ```bash
@@ -148,6 +172,16 @@ It contains values such as:
 ```
 
 Run `ctxbridge init` to create or replace this configuration. Do not share it publicly because it identifies the linked project and backend.
+
+## Input Validation & Error Handling
+
+The CLI validates input before making network calls, and reports failures clearly instead of raw stack traces:
+
+- A `--backend` URL (or `CONTEXTBRIDGE_API_URL`) missing a protocol, empty, or otherwise malformed is rejected immediately with a message showing the expected format.
+- A malformed `CONTEXTBRIDGE_API_URL` triggers a warning and falls back to the next source in the resolution order instead of silently failing later.
+- A `.contextbridge/config.json` missing required fields (e.g. hand-edited or corrupted) is caught before any request is made, with a prompt to re-run `ctxbridge init`.
+- Connection failures, timeouts, and unresolvable hosts are reported with a specific, actionable message.
+- Non-2xx HTTP responses (400, 404, 422, 500, and others) show the status code, a short explanation, and any `detail`/`message` field the backend returned.
 
 ## Backend API
 
