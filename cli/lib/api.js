@@ -71,6 +71,18 @@ async function pingBackend(backendUrl) {
   return res.data
 }
 
+async function ingestProject(backendUrl, projectId, detectedMemory, metadata) {
+  const client = createClient(backendUrl)
+  const res = await client.post(
+    `/projects/${projectId}/memory/ingest`,
+    {
+      detected_memory: detectedMemory,
+      metadata: metadata || {}
+    }
+  )
+  return res.data
+}
+
 module.exports = {
   fetchProjects,
   fetchProject,
@@ -81,5 +93,6 @@ module.exports = {
   fetchSessions,
   fetchVersions,
   ingestMemory,
-  pingBackend
+  pingBackend, 
+  ingestProject
 }
