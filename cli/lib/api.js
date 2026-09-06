@@ -56,6 +56,15 @@ async function fetchVersions(backendUrl, projectId) {
   return res.data
 }
 
+async function ingestMemory(backendUrl, projectId, detectedMemory, metadata) {
+  const client = createClient(backendUrl)
+  const res    = await client.post(`/projects/${projectId}/memory/ingest`, {
+    detected_memory: detectedMemory,
+    metadata: metadata || {}
+  })
+  return res.data
+}
+
 async function pingBackend(backendUrl) {
   const client = createClient(backendUrl)
   const res    = await client.get('/health')
@@ -71,5 +80,6 @@ module.exports = {
   fetchCompleteness,
   fetchSessions,
   fetchVersions,
+  ingestMemory,
   pingBackend
 }
