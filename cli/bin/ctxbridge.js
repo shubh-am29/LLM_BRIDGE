@@ -8,7 +8,7 @@ const { exportContext } = require('../commands/export')
 const { status }        = require('../commands/status')
 const { health }        = require('../commands/health')
 
-const VERSION = '0.1.0'
+const { version: VERSION } = require('../package.json');
 
 program
   .name('ctxbridge')

@@ -1,6 +1,6 @@
 {
   "name": "@shu_bham_61/ctxbridge",
-  "version": "0.1.7",
+  "version": "0.1.8",
   "description": "CLI for ctxbridge — project memory for AI coding agents",
   "main": "bin/ctxbridge.js",
   "bin": {

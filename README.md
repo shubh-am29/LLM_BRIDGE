@@ -146,12 +146,19 @@ ctxbridge init
 ctxbridge sync
 ctxbridge status
 ctxbridge export
+ctxbridge health
 ```
 
 Use another backend URL during initialization when needed:
 
 ```bash
 ctxbridge init --backend http://127.0.0.1:8000
+```
+
+Or override it for any command via an environment variable:
+
+```bash
+CONTEXTBRIDGE_API_URL=http://127.0.0.1:8000 ctxbridge health
 ```
 
 The CLI commands are:
@@ -163,6 +170,7 @@ The CLI commands are:
 | `ctxbridge status` | Show local files, backend health, memory completeness, and handoff readiness |
 | `ctxbridge export` | Export agent-readable context files |
 | `ctxbridge export --root` | Also write `AGENT-CONTEXT.md` to the current project root |
+| `ctxbridge health` | Check connectivity to the ContextBridge backend |
 
 CLI-generated files are stored in `.contextbridge/` and are ignored by Git because they can contain project-specific context and configuration.
 
