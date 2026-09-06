@@ -67,7 +67,15 @@ function requireLocalConfig() {
 
 // ── Helpers ───────────────────────────────────────────────────────────────────
 
+// Resolution order (highest priority first):
+//   1. CONTEXTBRIDGE_API_URL environment variable (explicit runtime override)
+//   2. Local project config (.contextbridge/config.json) — set by `ctxbridge init`
+//   3. Global config (~/.contextbridge/config.json)
+//   4. DEFAULT_BACKEND
 function getBackendUrl() {
+  if (process.env.CONTEXTBRIDGE_API_URL) {
+    return process.env.CONTEXTBRIDGE_API_URL
+  }
   const local  = readLocalConfig()
   const global = readGlobalConfig()
   return (local && local.backend_url) || global.backend_url || DEFAULT_BACKEND

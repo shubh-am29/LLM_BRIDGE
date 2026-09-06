@@ -6,6 +6,7 @@ const readline = require('readline')
 const { writeLocalConfig, ensureGitignore, DEFAULT_BACKEND } = require('../lib/config')
 const { fetchProjects, pingBackend } = require('../lib/api')
 const { writeFile } = require('../lib/files')
+const { formatRequestError } = require('../lib/errors')
 const detector = require('../lib/project-detector')
 
 function prompt(rl, question) {

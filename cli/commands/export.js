@@ -2,15 +2,17 @@ const chalk = require('chalk')
 const ora   = require('ora')
 const path  = require('path')
 const fs    = require('fs')
-const { requireLocalConfig } = require('../lib/config')
+const { requireLocalConfig, getBackendUrl } = require('../lib/config')
 const { fetchExportPackage, fetchHandoffPrompt } = require('../lib/api')
 const { writeFile } = require('../lib/files')
+const { formatRequestError } = require('../lib/errors')
 
 async function exportContext(options) {
   console.log(chalk.bold.blue('\n  ContextBridge Export\n'))
 
-  const config = requireLocalConfig()
-  const { project_id, backend_url } = config
+  const config      = requireLocalConfig()
+  const { project_id } = config
+  const backend_url = getBackendUrl()
 
   const spinner = ora('Fetching latest memory from backend...').start()
 
@@ -86,11 +88,7 @@ async function exportContext(options) {
 
   } catch (err) {
     spinner.fail(chalk.red('Export failed'))
-    console.error(chalk.dim('  Error: ') + err.message)
-    if (err.code === 'ECONNREFUSED') {
-      console.log(chalk.dim('\n  Is the backend running?'))
-      console.log(chalk.dim('  uvicorn app.main:app --reload --port 8000\n'))
-    }
+    console.error(formatRequestError(err, backend_url))
     process.exit(1)
   }
 }

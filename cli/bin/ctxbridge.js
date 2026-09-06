@@ -6,6 +6,7 @@ const { init }          = require('../commands/init')
 const { sync }          = require('../commands/sync')
 const { exportContext } = require('../commands/export')
 const { status }        = require('../commands/status')
+const { health }        = require('../commands/health')
 
 const VERSION = '0.1.0'
 
@@ -42,14 +43,22 @@ program
   .description('Show project health and memory completeness')
   .action(status)
 
+// ── contextbridge health ──────────────────────────────────────────────────────
+program
+  .command('health')
+  .description('Check connectivity to the ContextBridge backend')
+  .action(health)
+
 // ── fallback ──────────────────────────────────────────────────────────────────
 program.addHelpText('after', `
   Examples:
     $ ctxbridge init
+    $ ctxbridge init --backend http://127.0.0.1:8000
     $ ctxbridge sync
     $ ctxbridge export
     $ ctxbridge export --root
     $ ctxbridge status
+    $ ctxbridge health
 `)
 
 program.parse(process.argv)

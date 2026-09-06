@@ -1,14 +1,16 @@
 const chalk = require('chalk')
 const ora   = require('ora')
-const { requireLocalConfig } = require('../lib/config')
+const { requireLocalConfig, getBackendUrl } = require('../lib/config')
 const { fetchProject, fetchMemory, fetchHandoffPrompt, fetchExportPackage } = require('../lib/api')
 const { writeFile } = require('../lib/files')
+const { formatRequestError } = require('../lib/errors')
 
 async function sync(options) {
   console.log(chalk.bold.blue('\n  ContextBridge Sync\n'))
 
-  const config     = requireLocalConfig()
-  const { project_id, backend_url, project_name } = config
+  const config      = requireLocalConfig()
+  const { project_id, project_name } = config
+  const backend_url = getBackendUrl()
 
   const spinner = ora('Connecting to backend...').start()
 
@@ -94,11 +96,7 @@ async function sync(options) {
 
   } catch (err) {
     spinner.fail(chalk.red('Sync failed'))
-    console.error(chalk.dim('  Error: ') + err.message)
-    if (err.code === 'ECONNREFUSED') {
-      console.log(chalk.dim('\n  Is the backend running?'))
-      console.log(chalk.dim('  uvicorn app.main:app --reload --port 8000\n'))
-    }
+    console.error(formatRequestError(err, backend_url))
     process.exit(1)
   }
 }

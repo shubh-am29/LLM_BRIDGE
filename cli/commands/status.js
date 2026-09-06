@@ -2,13 +2,14 @@
 
 const chalk = require('chalk')
 const ora   = require('ora')
-const { requireLocalConfig } = require('../lib/config')
+const { requireLocalConfig, getBackendUrl } = require('../lib/config')
 const {
   fetchProject, fetchMemory, fetchCompleteness,
   fetchSessions, fetchVersions, pingBackend
 } = require('../lib/api')
 const { fileExists, getFileStat, readFile } = require('../lib/files')
 const detector = require('../lib/project-detector')
+const { formatRequestError } = require('../lib/errors')
 
 function timeAgo(dateStr) {
   if (!dateStr) return 'never'
@@ -42,8 +43,9 @@ function confidenceColor(n) {
 async function status(options) {
   console.log(chalk.bold.blue('\n  ContextBridge Status\n'))
 
-  const config = requireLocalConfig()
-  const { project_id, backend_url, project_name, last_synced } = config
+  const config      = requireLocalConfig()
+  const { project_id, project_name, last_synced } = config
+  const backend_url = getBackendUrl()
 
   // Live detection
   let detected = null
@@ -163,9 +165,11 @@ async function status(options) {
   try {
     await pingBackend(backend_url)
     spinner.succeed(chalk.green('  Backend reachable'))
-  } catch {
+  } catch (err) {
     spinner.fail(chalk.red('  Backend not reachable'))
-    console.log(chalk.dim('\n  Run: uvicorn app.main:app --reload --port 8000\n'))
+    console.log()
+    console.log(formatRequestError(err, backend_url))
+    console.log()
     return
   }
 
@@ -256,7 +260,8 @@ async function status(options) {
     console.log()
 
   } catch (err) {
-    console.error(chalk.red('\n  ✗ Failed to fetch status: ') + err.message)
+    console.log()
+    console.error(formatRequestError(err, backend_url))
     process.exit(1)
   }
 }
