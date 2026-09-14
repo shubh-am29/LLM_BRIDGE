@@ -3,12 +3,13 @@
 const chalk = require('chalk')
 const ora   = require('ora')
 const path  = require('path')
-const { requireLocalConfig } = require('../lib/config')
+const { requireLocalConfig, getBackendUrl } = require('../lib/config')
 const {
   fetchProject, fetchMemory, fetchHandoffPrompt,
-  fetchExportPackage, ingestProject
+  fetchExportPackage, ingestMemory
 } = require('../lib/api')
 const { writeFile, readFile } = require('../lib/files')
+const { formatRequestError } = require('../lib/errors')
 const { scanProjectFiles }    = require('../lib/scanner')
 const { analyseProject }      = require('../lib/analyser')
 const detector = require('../lib/project-detector')
@@ -16,8 +17,9 @@ const detector = require('../lib/project-detector')
 async function sync(options) {
   console.log(chalk.bold.blue('\n  ContextBridge Sync\n'))
 
-  const config = requireLocalConfig()
-  const { project_id, backend_url } = config
+  const config      = requireLocalConfig()
+  const { project_id } = config
+  const backend_url = getBackendUrl()
 
   // ── Step 1: Re-detect local project ─────────────────────────────────────────
   let profile = readFile('project-profile.json') || {}
@@ -76,7 +78,7 @@ async function sync(options) {
 
   if (Object.keys(detectedMemory).length > 0) {
     try {
-      ingestResult = await ingestProject(backend_url, project_id, detectedMemory, {
+      ingestResult = await ingestMemory(backend_url, project_id, detectedMemory, {
         file_count:    scanResult.stats.included,
         total_found:   scanResult.stats.totalFound,
         languages:     detectedMemory.technologies || [],
@@ -84,9 +86,8 @@ async function sync(options) {
       })
       ingestSpinner.succeed(chalk.green('  Project memory updated'))
     } catch (err) {
-      ingestSpinner.warn(
-        chalk.yellow('  Memory ingestion failed: ') + chalk.dim(err.message)
-      )
+      ingestSpinner.warn(chalk.yellow('  Memory ingestion failed:'))
+      console.log(formatRequestError(err, backend_url))
     }
   } else {
     ingestSpinner.info(chalk.dim('  Skipping memory ingestion (no data to send)'))
@@ -227,13 +228,7 @@ async function sync(options) {
 
   } catch (err) {
     fetchSpinner.fail(chalk.red('  Failed to fetch from backend'))
-    console.error(chalk.dim('  Error: ') + err.message)
-
-    if (err.code === 'ECONNREFUSED') {
-      console.log(chalk.dim('\n  Is the backend running?'))
-      console.log(chalk.dim('  uvicorn app.main:app --reload --port 8000\n'))
-    }
-
+    console.error(formatRequestError(err, backend_url))
     process.exit(1)
   }
 }

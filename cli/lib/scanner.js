@@ -10,7 +10,7 @@ const path = require('path')
 const IGNORE_DIRS = new Set([
   '.git', 'node_modules', 'venv', '.venv', 'env',
   '__pycache__', '.mypy_cache', '.pytest_cache', '.ruff_cache',
-  'dist', 'build', 'out', 'target', 'bin', 'obj',
+  'dist', 'build', 'out', 'target', 'obj',
   '.next', '.nuxt', '.svelte-kit', '.turbo',
   'vendor', 'coverage', '.coverage',
   '.contextbridge', '.cache', 'tmp', 'temp',

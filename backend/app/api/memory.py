@@ -1,5 +1,6 @@
 from fastapi import APIRouter, HTTPException
 from app.core.database import supabase
+from app.schemas.memory_schema import MemoryIngestRequest
 from datetime import datetime, timezone
 
 router = APIRouter(prefix="/projects/{project_id}/memory", tags=["Memory"])
@@ -121,24 +122,31 @@ def _merge_lists(existing: list, incoming: list) -> list:
 
 
 def _merge_text(existing: str, incoming: str) -> str:
-    """Keep existing text if it is detailed; use incoming if existing is empty."""
+    """Keep existing text whenever it's non-empty — manual descriptions are
+    never overwritten by auto-detected text, regardless of length. Detected
+    text only fills a field that is currently empty."""
     existing = (existing or "").strip()
     incoming = (incoming or "").strip()
-    if not existing:
-        return incoming
-    if not incoming:
+    if existing:
         return existing
-    # Existing is richer (longer) — keep it; otherwise prefer incoming
-    return existing if len(existing) >= len(incoming) else incoming
+    return incoming
+
+
+# Fields a rule-based scan must never populate or modify. key_decisions
+# requires human judgment — an automated scan appending to it without
+# review is exactly the failure mode this list exists to prevent.
+INGEST_PROTECTED_FIELDS = {"key_decisions"}
 
 
 def _safe_merge_memory(existing: dict, detected: dict) -> dict:
     """
     Merge detected (auto-generated) memory into existing (manual) memory.
     Rules:
-    - Lists: union of both, deduplicated
-    - Text fields: keep existing if non-empty and longer; else use detected
-    - Never delete existing items
+    - Lists: union of both, deduplicated — except protected fields, which
+      are never touched by ingestion.
+    - Text fields: keep existing whenever it is non-empty; detected only
+      fills an empty field.
+    - Never delete existing items.
     """
     merged = dict(existing)  # start from existing
 
@@ -151,6 +159,8 @@ def _safe_merge_memory(existing: dict, detected: dict) -> dict:
     text_fields = ["project_overview", "architecture"]
 
     for field in list_fields:
+        if field in INGEST_PROTECTED_FIELDS:
+            continue
         existing_val = existing.get(field) or []
         detected_val = detected.get(field) or []
         merged[field] = _merge_lists(existing_val, detected_val)
@@ -164,7 +174,7 @@ def _safe_merge_memory(existing: dict, detected: dict) -> dict:
 
 
 @router.post("/ingest")
-def ingest_project(project_id: str, data: dict):
+def ingest_project(project_id: str, data: MemoryIngestRequest):
     """
     Accept scanned project data from the CLI, analyse it server-side,
     merge with existing memory, and persist.
@@ -175,12 +185,7 @@ def ingest_project(project_id: str, data: dict):
         "metadata": { "file_count": 25, "languages": [...], ... }
     }
     """
-    if not data:
-        raise HTTPException(status_code=400, detail="Request body is required")
-
-    detected = data.get("detected_memory", {})
-    if not isinstance(detected, dict):
-        raise HTTPException(status_code=400, detail="detected_memory must be an object")
+    detected = data.detected_memory
 
     current_record = get_or_create(project_id)
     existing_memory = current_record.get("memory_data") or {}
@@ -210,5 +215,5 @@ def ingest_project(project_id: str, data: dict):
         "success": True,
         "version": new_version,
         "memory_data": merged,
-        "metadata": data.get("metadata", {})
+        "metadata": data.metadata
     }
