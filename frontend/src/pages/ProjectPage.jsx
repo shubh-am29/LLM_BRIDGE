@@ -222,7 +222,7 @@ export default function ProjectPage() {
           style={s.backBtn}
           onClick={() => {
             if (isDirty && !confirm('Leave with unsaved changes?')) return
-            navigate('/')
+            navigate('/dashboard')
           }}
         >
           ← Dashboard
@@ -683,6 +683,42 @@ export default function ProjectPage() {
   )
 }
 
+/* ─────────────────────────────────────────────────────────
+   Paste this in place of the existing `scoreColor` function
+   and the `s` / `h` objects at the bottom of ProjectPage.jsx.
+   Every key name is unchanged — only values changed — so no
+   JSX elsewhere in the file needs to be touched.
+   ───────────────────────────────────────────────────────── */
+ 
+function scoreColor(score) {
+  if (score >= 80) return '#4ade80'   // brighter green for dark bg
+  if (score >= 50) return '#fbbf24'   // brighter amber
+  return '#f87171'                    // brighter red
+}
+ 
+/* ── ContextBridge ember theme tokens ── */
+const c = {
+  bg:         '#130d0a',
+  bgRaised:   '#1c130e',
+  bgCard:     '#201712',
+  border:     '#3a2a1e',
+  borderSoft: '#241a13',
+  text:       '#f3ece4',
+  textDim:    '#a8998b',
+  textFaint:  '#6f6053',
+  orange:     '#ff7a3d',
+  orangeHot:  '#ff4d1c',
+  orangeDim:  '#7a4526',
+  green:      '#4ade80',
+  greenBg:    'rgba(74,222,128,0.10)',
+  greenBorder:'rgba(74,222,128,0.25)',
+  amber:      '#fbbf24',
+  amberBg:    'rgba(251,191,36,0.10)',
+  amberBorder:'rgba(251,191,36,0.25)',
+  red:        '#f87171',
+  redBg:      'rgba(248,113,113,0.10)',
+  redBorder:  'rgba(248,113,113,0.25)',
+}
 /* ─── Styles ─── */
 const s = {
   page:            { maxWidth: 960, margin: '0 auto', padding: '1.5rem', fontFamily: 'system-ui, sans-serif' },

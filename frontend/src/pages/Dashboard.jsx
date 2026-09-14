@@ -60,28 +60,13 @@ export default function Dashboard() {
   return (
     <div style={s.page}>
       <div style={s.header}>
-        <div
-          style={{
-            display: 'flex',
-            justifyContent: 'space-between',
-            alignItems: 'center',
-            marginBottom: '0.25rem'
-          }}
-        >
-          <h1 style={s.title}>ContextBridge</h1>
+        <div style={s.headerRow}>
+          <div style={s.logoRow}>
+            <div style={s.logoMark}>CB</div>
+            <h1 style={s.title}>ContextBridge</h1>
+          </div>
 
-          <button
-            onClick={handleSignOut}
-            style={{
-              padding: '0.4rem 0.9rem',
-              background: '#f3f4f6',
-              border: '1px solid #e5e7eb',
-              borderRadius: 6,
-              cursor: 'pointer',
-              fontSize: '0.85rem',
-              color: '#374151'
-            }}
-          >
+          <button onClick={handleSignOut} style={s.signOutBtn}>
             Sign Out
           </button>
         </div>
@@ -166,56 +151,123 @@ export default function Dashboard() {
   )
 }
 
+/* ── ContextBridge ember theme ── */
+const c = {
+  bg:        '#130d0a',
+  bgRaised:  '#1c130e',
+  bgCard:    '#201712',
+  border:    '#3a2a1e',
+  borderSoft:'#241a13',
+  text:      '#f3ece4',
+  textDim:   '#a8998b',
+  textFaint: '#6f6053',
+  orange:    '#ff7a3d',
+  orangeHot: '#ff4d1c',
+  orangeDim: '#7a4526',
+  danger:    '#e0605a',
+  dangerBg:  '#2a1512',
+  dangerBorder: '#4a2420',
+}
+
 const s = {
   page: {
+    minHeight: '100vh',
     maxWidth: 900,
     margin: '0 auto',
-    padding: '2rem',
-    fontFamily: 'system-ui, sans-serif'
+    padding: '2.5rem 2rem 4rem',
+    fontFamily: "'Inter', system-ui, sans-serif",
+    background: c.bg,
+    color: c.text
   },
 
   header: {
     marginBottom: '2rem',
-    borderBottom: '2px solid #4f46e5',
-    paddingBottom: '1rem'
+    borderBottom: `1px solid ${c.borderSoft}`,
+    paddingBottom: '1.25rem'
+  },
+
+  headerRow: {
+    display: 'flex',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    marginBottom: '0.4rem'
+  },
+
+  logoRow: {
+    display: 'flex',
+    alignItems: 'center',
+    gap: '0.7rem'
+  },
+
+  logoMark: {
+    width: 30,
+    height: 30,
+    borderRadius: 8,
+    background: `linear-gradient(135deg, ${c.orange}, ${c.orangeHot})`,
+    display: 'flex',
+    alignItems: 'center',
+    justifyContent: 'center',
+    color: '#1a0d05',
+    fontWeight: 700,
+    fontSize: '0.72rem',
+    fontFamily: "'IBM Plex Mono', monospace",
+    flexShrink: 0
   },
 
   title: {
-    fontSize: '2rem',
-    fontWeight: 800,
-    color: '#1e1b4b',
-    margin: 0
+    fontSize: '1.6rem',
+    fontWeight: 700,
+    fontFamily: "'Space Grotesk', sans-serif",
+    color: c.text,
+    margin: 0,
+    letterSpacing: '-0.01em'
+  },
+
+  signOutBtn: {
+    padding: '0.45rem 1rem',
+    background: 'transparent',
+    border: `1px solid ${c.border}`,
+    borderRadius: 8,
+    cursor: 'pointer',
+    fontSize: '0.85rem',
+    color: c.textDim,
+    transition: 'all .15s ease'
   },
 
   sub: {
-    color: '#6b7280',
-    margin: '0.25rem 0 0'
+    color: c.textFaint,
+    margin: '0.25rem 0 0',
+    fontSize: '0.92rem'
   },
 
   sectionTitle: {
-    fontSize: '1.1rem',
-    fontWeight: 700,
+    fontSize: '1.05rem',
+    fontWeight: 600,
+    fontFamily: "'Space Grotesk', sans-serif",
     marginBottom: '1rem',
-    color: '#374151'
+    color: c.text
   },
 
   form: {
-    background: '#f9fafb',
+    background: c.bgCard,
     padding: '1.5rem',
-    borderRadius: 10,
-    marginBottom: '2rem',
-    border: '1px solid #e5e7eb'
+    borderRadius: 12,
+    marginBottom: '2.5rem',
+    border: `1px solid ${c.border}`
   },
 
   input: {
     display: 'block',
     width: '100%',
-    padding: '0.65rem',
+    padding: '0.7rem 0.85rem',
     marginBottom: '0.75rem',
-    border: '1px solid #d1d5db',
-    borderRadius: 6,
-    fontSize: '1rem',
-    boxSizing: 'border-box'
+    border: `1px solid ${c.border}`,
+    borderRadius: 8,
+    fontSize: '0.95rem',
+    boxSizing: 'border-box',
+    background: c.bgRaised,
+    color: c.text,
+    fontFamily: 'inherit'
   },
 
   grid: {
@@ -225,13 +277,14 @@ const s = {
   },
 
   card: {
-    background: '#fff',
-    border: '1px solid #e5e7eb',
-    borderRadius: 10,
+    background: c.bgCard,
+    border: `1px solid ${c.border}`,
+    borderRadius: 12,
     padding: '1.25rem',
     display: 'flex',
     flexDirection: 'column',
-    gap: '0.4rem'
+    gap: '0.45rem',
+    transition: 'border-color .15s ease'
   },
 
   cardTop: {
@@ -241,71 +294,75 @@ const s = {
   },
 
   cardTitle: {
-    fontWeight: 700,
+    fontWeight: 600,
     fontSize: '1rem',
+    fontFamily: "'Space Grotesk', sans-serif",
     margin: 0,
-    color: '#111827'
+    color: c.text
   },
 
   badge: {
-    background: '#ede9fe',
-    color: '#6d28d9',
-    padding: '0.2rem 0.5rem',
+    background: 'rgba(255,122,61,0.12)',
+    color: c.orange,
+    padding: '0.2rem 0.55rem',
     borderRadius: 99,
-    fontSize: '0.75rem',
-    fontWeight: 600
+    fontSize: '0.72rem',
+    fontWeight: 600,
+    fontFamily: "'IBM Plex Mono', monospace",
+    border: `1px solid ${c.orangeDim}`
   },
 
   cardDesc: {
-    color: '#6b7280',
+    color: c.textDim,
     fontSize: '0.875rem',
     margin: 0,
     flexGrow: 1
   },
 
   cardDate: {
-    color: '#9ca3af',
-    fontSize: '0.8rem',
-    margin: 0
+    color: c.textFaint,
+    fontSize: '0.78rem',
+    margin: 0,
+    fontFamily: "'IBM Plex Mono', monospace"
   },
 
   cardActions: {
     display: 'flex',
     gap: '0.5rem',
-    marginTop: '0.5rem'
+    marginTop: '0.6rem'
   },
 
   btnPrimary: {
-    padding: '0.5rem 1rem',
-    background: '#4f46e5',
-    color: '#fff',
+    padding: '0.55rem 1.1rem',
+    background: `linear-gradient(135deg, ${c.orange}, ${c.orangeHot})`,
+    color: '#1a0d05',
     border: 'none',
-    borderRadius: 6,
+    borderRadius: 8,
     cursor: 'pointer',
     fontSize: '0.875rem',
     fontWeight: 600
   },
 
   btnDanger: {
-    padding: '0.5rem 1rem',
-    background: '#ef4444',
-    color: '#fff',
-    border: 'none',
-    borderRadius: 6,
+    padding: '0.55rem 1.1rem',
+    background: c.dangerBg,
+    color: c.danger,
+    border: `1px solid ${c.dangerBorder}`,
+    borderRadius: 8,
     cursor: 'pointer',
     fontSize: '0.875rem'
   },
 
   error: {
-    background: '#fef2f2',
-    color: '#dc2626',
+    background: c.dangerBg,
+    color: c.danger,
     padding: '0.75rem 1rem',
-    borderRadius: 6,
+    borderRadius: 8,
     marginBottom: '1rem',
-    border: '1px solid #fecaca'
+    border: `1px solid ${c.dangerBorder}`
   },
 
   muted: {
-    color: '#9ca3af'
+    color: c.textFaint
   }
 }
