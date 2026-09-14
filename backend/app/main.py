@@ -1,6 +1,7 @@
-from fastapi import FastAPI
+from fastapi import FastAPI, Depends
 from fastapi.middleware.cors import CORSMiddleware
 from app.api import projects, memory, sessions, proposals, context, handoff
+from app.core.auth import get_current_user
 
 app = FastAPI(title="ContextBridge API", version="0.1.0")
 
@@ -15,13 +16,7 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
-app.include_router(projects.router)
-app.include_router(memory.router)
-app.include_router(sessions.router)
-app.include_router(proposals.router)
-app.include_router(context.router)
-app.include_router(handoff.router)
-
+# Public — no auth needed
 @app.get("/")
 def root():
     return {"message": "ContextBridge API is running"}
@@ -29,3 +24,13 @@ def root():
 @app.get("/health")
 def health():
     return {"status": "ok"}
+
+# Protected — valid Supabase session required
+_auth = [Depends(get_current_user)]
+
+app.include_router(projects.router,  dependencies=_auth)
+app.include_router(memory.router,    dependencies=_auth)
+app.include_router(sessions.router,  dependencies=_auth)
+app.include_router(proposals.router, dependencies=_auth)
+app.include_router(context.router,   dependencies=_auth)
+app.include_router(handoff.router,   dependencies=_auth)
