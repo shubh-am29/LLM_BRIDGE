@@ -193,9 +193,15 @@ export default function ProjectPage() {
   }
 
   function scoreColor(score) {
-    if (score >= 80) return '#16a34a'
-    if (score >= 50) return '#d97706'
-    return '#dc2626'
+    if (score >= 80) return '#4ade80'
+    if (score >= 50) return '#fbbf24'
+    return '#f87171'
+  }
+
+  function scoreBg(score) {
+    if (score >= 80) return 'rgba(74,222,128,0.12)'
+    if (score >= 50) return 'rgba(251,191,36,0.12)'
+    return 'rgba(248,113,113,0.12)'
   }
 
   function tabLabel(t) {
@@ -210,10 +216,11 @@ export default function ProjectPage() {
     return map[t] || t
   }
 
-  if (loading) return <div style={s.center}>Loading project...</div>
-  if (!project) return <div style={s.center}>Project not found.</div>
+  if (loading) return <div style={s.shell}><div style={s.center}>Loading project...</div></div>
+  if (!project) return <div style={s.shell}><div style={s.center}>Project not found.</div></div>
 
   return (
+    <div style={s.shell}>
     <div style={s.page}>
 
       {/* ── Header ── */}
@@ -244,8 +251,9 @@ export default function ProjectPage() {
             {completeness && (
               <span style={{
                 ...s.metaChip,
-                background: completeness.score >= 80 ? '#dcfce7' : completeness.score >= 50 ? '#fef9c3' : '#fee2e2',
-                color: scoreColor(completeness.score)
+                background: scoreBg(completeness.score),
+                color: scoreColor(completeness.score),
+                border: `1px solid ${scoreColor(completeness.score)}33`
               }}>
                 {completeness.score}% complete
               </span>
@@ -307,7 +315,7 @@ export default function ProjectPage() {
             </div>
             <div style={s.infoCard}>
               <div style={s.infoLabel}>Completeness</div>
-              <div style={{ ...s.infoVal, color: completeness ? scoreColor(completeness.score) : '#111827' }}>
+              <div style={{ ...s.infoVal, color: completeness ? scoreColor(completeness.score) : c.text }}>
                 {completeness ? `${completeness.score}%` : '—'}
               </div>
             </div>
@@ -318,7 +326,7 @@ export default function ProjectPage() {
             <div style={s.btnRow}>
               <button style={s.btnPrimary} onClick={() => setTab('memory')}>Edit Memory</button>
               <button style={s.btnSecondary} onClick={() => navigate(`/projects/${projectId}/import`)}>Import Session</button>
-              <button style={{ ...s.btnPrimary, background: '#059669' }} onClick={() => navigate(`/projects/${projectId}/handoff`)}>Agent Handoff</button>
+              <button style={s.btnGreen} onClick={() => navigate(`/projects/${projectId}/handoff`)}>Agent Handoff</button>
               <button style={s.btnSecondary} onClick={() => setTab('export')}>Export Context</button>
             </div>
           </div>
@@ -603,7 +611,7 @@ export default function ProjectPage() {
       {tab === 'handoff' && (
         <div style={s.section}>
           <h2 style={s.sectionTitle}>Agent Handoff</h2>
-          <p style={{ color: '#6b7280', marginBottom: '1.5rem' }}>
+          <p style={{ color: c.textDim, marginBottom: '1.5rem' }}>
             Generate ready-to-use context that the next AI coding agent can consume directly.
           </p>
 
@@ -628,8 +636,8 @@ export default function ProjectPage() {
                 <div style={h.indicatorLabel}>Handoff Status</div>
                 <div style={{
                   ...h.statusBadge,
-                  background: completeness.ready_for_handoff ? '#dcfce7' : '#fef9c3',
-                  color: completeness.ready_for_handoff ? '#16a34a' : '#92400e'
+                  background: completeness.ready_for_handoff ? 'rgba(74,222,128,0.12)' : 'rgba(251,191,36,0.12)',
+                  color: completeness.ready_for_handoff ? '#4ade80' : '#fbbf24'
                 }}>
                   {completeness.ready_for_handoff
                     ? '✓ Ready for Agent Handoff'
@@ -666,7 +674,7 @@ export default function ProjectPage() {
             </p>
             <div style={s.btnRow}>
               <button
-                style={{ ...s.btnPrimary, background: '#059669' }}
+                style={s.btnGreen}
                 onClick={() => navigate(`/projects/${projectId}/handoff`)}
               >
                 Open Agent Handoff →
@@ -680,131 +688,109 @@ export default function ProjectPage() {
       )}
 
     </div>
+    </div>
   )
 }
 
-/* ─────────────────────────────────────────────────────────
-   Paste this in place of the existing `scoreColor` function
-   and the `s` / `h` objects at the bottom of ProjectPage.jsx.
-   Every key name is unchanged — only values changed — so no
-   JSX elsewhere in the file needs to be touched.
-   ───────────────────────────────────────────────────────── */
- 
-function scoreColor(score) {
-  if (score >= 80) return '#4ade80'   // brighter green for dark bg
-  if (score >= 50) return '#fbbf24'   // brighter amber
-  return '#f87171'                    // brighter red
-}
- 
-/* ── ContextBridge ember theme tokens ── */
+/* ── ContextBridge ember theme ── */
 const c = {
-  bg:         '#130d0a',
-  bgRaised:   '#1c130e',
-  bgCard:     '#201712',
-  border:     '#3a2a1e',
-  borderSoft: '#241a13',
-  text:       '#f3ece4',
-  textDim:    '#a8998b',
-  textFaint:  '#6f6053',
-  orange:     '#ff7a3d',
-  orangeHot:  '#ff4d1c',
-  orangeDim:  '#7a4526',
-  green:      '#4ade80',
-  greenBg:    'rgba(74,222,128,0.10)',
-  greenBorder:'rgba(74,222,128,0.25)',
-  amber:      '#fbbf24',
-  amberBg:    'rgba(251,191,36,0.10)',
-  amberBorder:'rgba(251,191,36,0.25)',
-  red:        '#f87171',
-  redBg:      'rgba(248,113,113,0.10)',
-  redBorder:  'rgba(248,113,113,0.25)',
+  bg: '#130d0a', bgRaised: '#1c130e', bgCard: '#201712',
+  border: '#3a2a1e', borderSoft: '#241a13',
+  text: '#f3ece4', textDim: '#a8998b', textFaint: '#6f6053',
+  orange: '#ff7a3d', orangeHot: '#ff4d1c', orangeDim: '#7a4526',
+  green: '#4ade80', greenBg: 'rgba(74,222,128,0.10)', greenBorder: 'rgba(74,222,128,0.25)',
+  amber: '#fbbf24', amberBg: 'rgba(251,191,36,0.10)', amberBorder: 'rgba(251,191,36,0.25)',
+  red: '#f87171', redBg: 'rgba(248,113,113,0.10)', redBorder: 'rgba(248,113,113,0.25)',
 }
+
 /* ─── Styles ─── */
 const s = {
-  page:            { maxWidth: 960, margin: '0 auto', padding: '1.5rem', fontFamily: 'system-ui, sans-serif' },
-  center:          { textAlign: 'center', padding: '4rem', color: '#6b7280' },
-  headerBar:       { display: 'flex', alignItems: 'flex-start', gap: '1rem', marginBottom: '1.5rem', paddingBottom: '1rem', borderBottom: '2px solid #e5e7eb' },
-  backBtn:         { background: 'none', border: 'none', color: '#4f46e5', cursor: 'pointer', fontSize: '0.9rem', padding: '0.25rem 0', whiteSpace: 'nowrap' },
+  shell:           { width: '100%', minHeight: '100vh', background: c.bg },
+  page:            { maxWidth: 1120, margin: '0 auto', padding: '2rem 32px 4rem', fontFamily: "'Inter', system-ui, sans-serif", color: c.text, boxSizing: 'border-box' },
+  center:          { textAlign: 'center', padding: '4rem', color: c.textFaint },
+  headerBar:       { display: 'flex', alignItems: 'flex-start', gap: '1rem', marginBottom: '1.5rem', paddingBottom: '1rem', borderBottom: `1px solid ${c.borderSoft}` },
+  backBtn:         { background: 'none', border: 'none', color: c.orange, cursor: 'pointer', fontSize: '0.9rem', padding: '0.25rem 0', whiteSpace: 'nowrap' },
   projectMeta:     { flex: 1 },
-  projectTitle:    { fontSize: '1.5rem', fontWeight: 800, color: '#111827', margin: '0 0 0.25rem' },
-  projectDesc:     { color: '#6b7280', margin: '0 0 0.5rem', fontSize: '0.9rem' },
+  projectTitle:    { fontSize: '1.5rem', fontWeight: 700, fontFamily: "'Space Grotesk', sans-serif", color: c.text, margin: '0 0 0.25rem', letterSpacing: '-0.01em' },
+  projectDesc:     { color: c.textDim, margin: '0 0 0.5rem', fontSize: '0.9rem' },
   metaRow:         { display: 'flex', gap: '0.5rem', flexWrap: 'wrap' },
-  metaChip:        { background: '#f3f4f6', color: '#374151', padding: '0.2rem 0.6rem', borderRadius: 99, fontSize: '0.75rem', fontWeight: 500 },
-  importBtn:       { padding: '0.6rem 1rem', background: '#059669', color: '#fff', border: 'none', borderRadius: 6, cursor: 'pointer', fontSize: '0.875rem', fontWeight: 600, whiteSpace: 'nowrap' },
-  tabBar:          { display: 'flex', gap: '0.25rem', marginBottom: '1.5rem', borderBottom: '1px solid #e5e7eb', flexWrap: 'wrap' },
-  tab:             { padding: '0.6rem 1rem', background: 'none', border: 'none', borderBottom: '2px solid transparent', cursor: 'pointer', fontSize: '0.875rem', color: '#6b7280', fontWeight: 500 },
-  tabActive:       { padding: '0.6rem 1rem', background: 'none', border: 'none', borderBottom: '2px solid #4f46e5', cursor: 'pointer', fontSize: '0.875rem', color: '#4f46e5', fontWeight: 700 },
-  readyDot:        { color: '#16a34a', marginLeft: '0.35rem', fontSize: '0.6rem' },
-  section:         { background: '#fff' },
-  sectionTitle:    { fontSize: '1.2rem', fontWeight: 700, color: '#111827', marginBottom: '1rem', marginTop: 0 },
-  subTitle:        { fontSize: '1rem', fontWeight: 600, color: '#374151', margin: '1rem 0 0.5rem' },
-  errorMsg:        { background: '#fef2f2', color: '#dc2626', padding: '0.75rem 1rem', borderRadius: 6, marginBottom: '1rem', border: '1px solid #fecaca', display: 'flex', justifyContent: 'space-between', alignItems: 'center' },
-  successMsg:      { background: '#f0fdf4', color: '#16a34a', padding: '0.75rem 1rem', borderRadius: 6, marginBottom: '1rem', border: '1px solid #bbf7d0', display: 'flex', justifyContent: 'space-between', alignItems: 'center' },
+  metaChip:        { background: c.bgRaised, color: c.textDim, border: `1px solid ${c.border}`, padding: '0.2rem 0.6rem', borderRadius: 99, fontSize: '0.75rem', fontWeight: 500, fontFamily: "'IBM Plex Mono', monospace" },
+  importBtn:       { padding: '0.6rem 1rem', background: `linear-gradient(135deg, ${c.orange}, ${c.orangeHot})`, color: '#1a0d05', border: 'none', borderRadius: 8, cursor: 'pointer', fontSize: '0.875rem', fontWeight: 600, whiteSpace: 'nowrap' },
+  tabBar:          { display: 'flex', gap: '0.25rem', marginBottom: '1.5rem', borderBottom: `1px solid ${c.borderSoft}`, flexWrap: 'wrap' },
+  tab:             { padding: '0.6rem 1rem', background: 'none', border: 'none', borderBottom: '2px solid transparent', cursor: 'pointer', fontSize: '0.875rem', color: c.textFaint, fontWeight: 500 },
+  tabActive:       { padding: '0.6rem 1rem', background: 'none', border: 'none', borderBottom: `2px solid ${c.orange}`, cursor: 'pointer', fontSize: '0.875rem', color: c.orange, fontWeight: 600 },
+  readyDot:        { color: c.green, marginLeft: '0.35rem', fontSize: '0.6rem' },
+  section:         { background: 'transparent' },
+  sectionTitle:    { fontSize: '1.2rem', fontWeight: 600, fontFamily: "'Space Grotesk', sans-serif", color: c.text, marginBottom: '1rem', marginTop: 0 },
+  subTitle:        { fontSize: '1rem', fontWeight: 600, color: c.text, margin: '1rem 0 0.5rem' },
+  errorMsg:        { background: c.redBg, color: c.red, padding: '0.75rem 1rem', borderRadius: 8, marginBottom: '1rem', border: `1px solid ${c.redBorder}`, display: 'flex', justifyContent: 'space-between', alignItems: 'center' },
+  successMsg:      { background: c.greenBg, color: c.green, padding: '0.75rem 1rem', borderRadius: 8, marginBottom: '1rem', border: `1px solid ${c.greenBorder}`, display: 'flex', justifyContent: 'space-between', alignItems: 'center' },
   closeMsg:        { background: 'none', border: 'none', cursor: 'pointer', fontSize: '1.1rem', color: 'inherit' },
   memHeader:       { display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '1.5rem' },
-  dirtyBadge:      { color: '#d97706', fontSize: '0.8rem', fontWeight: 600 },
+  dirtyBadge:      { color: c.amber, fontSize: '0.8rem', fontWeight: 600 },
   memBlock:        { marginBottom: '1.5rem' },
-  memLabel:        { display: 'block', fontWeight: 700, fontSize: '0.95rem', color: '#111827', marginBottom: '0.25rem' },
-  memHint:         { color: '#9ca3af', fontSize: '0.8rem', margin: '0 0 0.5rem' },
-  memTextarea:     { width: '100%', padding: '0.65rem', border: '1px solid #d1d5db', borderRadius: 6, fontSize: '0.9rem', boxSizing: 'border-box', fontFamily: 'inherit', resize: 'vertical' },
+  memLabel:        { display: 'block', fontWeight: 600, fontSize: '0.95rem', color: c.text, marginBottom: '0.25rem' },
+  memHint:         { color: c.textFaint, fontSize: '0.8rem', margin: '0 0 0.5rem' },
+  memTextarea:     { width: '100%', padding: '0.65rem', border: `1px solid ${c.border}`, borderRadius: 8, fontSize: '0.9rem', boxSizing: 'border-box', fontFamily: 'inherit', resize: 'vertical', background: c.bgRaised, color: c.text },
   btnRow:          { display: 'flex', gap: '0.5rem', flexWrap: 'wrap', alignItems: 'center' },
-  btnPrimary:      { padding: '0.55rem 1.1rem', background: '#4f46e5', color: '#fff', border: 'none', borderRadius: 6, cursor: 'pointer', fontSize: '0.875rem', fontWeight: 600 },
-  btnSecondary:    { padding: '0.55rem 1.1rem', background: '#f3f4f6', color: '#374151', border: '1px solid #d1d5db', borderRadius: 6, cursor: 'pointer', fontSize: '0.875rem' },
-  btnSmall:        { padding: '0.3rem 0.75rem', background: '#ede9fe', color: '#6d28d9', border: 'none', borderRadius: 6, cursor: 'pointer', fontSize: '0.8rem' },
+  btnPrimary:      { padding: '0.55rem 1.1rem', background: `linear-gradient(135deg, ${c.orange}, ${c.orangeHot})`, color: '#1a0d05', border: 'none', borderRadius: 8, cursor: 'pointer', fontSize: '0.875rem', fontWeight: 600 },
+  btnGreen:        { padding: '0.55rem 1.1rem', background: '#059669', color: '#fff', border: 'none', borderRadius: 8, cursor: 'pointer', fontSize: '0.875rem', fontWeight: 600 },
+  btnSecondary:    { padding: '0.55rem 1.1rem', background: c.bgRaised, color: c.textDim, border: `1px solid ${c.border}`, borderRadius: 8, cursor: 'pointer', fontSize: '0.875rem' },
+  btnSmall:        { padding: '0.3rem 0.75rem', background: 'rgba(255,122,61,0.12)', color: c.orange, border: `1px solid ${c.orangeDim}`, borderRadius: 8, cursor: 'pointer', fontSize: '0.8rem' },
   infoGrid:        { display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(160px, 1fr))', gap: '0.75rem', marginBottom: '1.5rem' },
-  infoCard:        { background: '#f9fafb', border: '1px solid #e5e7eb', borderRadius: 8, padding: '0.75rem' },
-  infoLabel:       { color: '#9ca3af', fontSize: '0.75rem', marginBottom: '0.25rem' },
-  infoVal:         { fontWeight: 700, color: '#111827', fontSize: '1.1rem' },
+  infoCard:        { background: c.bgCard, border: `1px solid ${c.border}`, borderRadius: 10, padding: '0.75rem' },
+  infoLabel:       { color: c.textFaint, fontSize: '0.75rem', marginBottom: '0.25rem' },
+  infoVal:         { fontWeight: 700, color: c.text, fontSize: '1.1rem', fontFamily: "'Space Grotesk', sans-serif" },
   quickActions:    { marginBottom: '1.5rem' },
-  overviewBox:     { background: '#f9fafb', border: '1px solid #e5e7eb', borderRadius: 8, padding: '1rem', marginBottom: '1rem' },
-  overviewText:    { color: '#374151', margin: 0, lineHeight: 1.6 },
-  simpleList:      { margin: 0, paddingLeft: '1.25rem', color: '#374151', fontSize: '0.875rem' },
-  instructionsBox: { background: '#fff7ed', border: '1px solid #fed7aa', borderRadius: 8, padding: '1rem' },
-  instrList:       { margin: 0, paddingLeft: '1.25rem', color: '#9a3412' },
-  emptyState:      { textAlign: 'center', padding: '3rem', background: '#f9fafb', borderRadius: 10, border: '1px dashed #d1d5db' },
-  emptyTitle:      { fontWeight: 700, fontSize: '1rem', color: '#374151', margin: '0 0 0.5rem' },
-  emptyDesc:       { color: '#9ca3af', margin: '0 0 1rem' },
+  overviewBox:     { background: c.bgCard, border: `1px solid ${c.border}`, borderRadius: 10, padding: '1rem', marginBottom: '1rem' },
+  overviewText:    { color: c.textDim, margin: 0, lineHeight: 1.6 },
+  simpleList:      { margin: 0, paddingLeft: '1.25rem', color: c.textDim, fontSize: '0.875rem' },
+  instructionsBox: { background: c.amberBg, border: `1px solid ${c.amberBorder}`, borderRadius: 10, padding: '1rem' },
+  instrList:       { margin: 0, paddingLeft: '1.25rem', color: c.amber },
+  emptyState:      { textAlign: 'center', padding: '3rem', background: c.bgCard, borderRadius: 12, border: `1px dashed ${c.border}` },
+  emptyTitle:      { fontWeight: 600, fontSize: '1rem', color: c.text, margin: '0 0 0.5rem' },
+  emptyDesc:       { color: c.textFaint, margin: '0 0 1rem' },
   sessionList:     { display: 'flex', flexDirection: 'column', gap: '0.75rem' },
-  sessionCard:     { border: '1px solid #e5e7eb', borderRadius: 8, padding: '1rem', background: '#fff' },
+  sessionCard:     { border: `1px solid ${c.border}`, borderRadius: 10, padding: '1rem', background: c.bgCard },
   sessionTop:      { display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '0.5rem' },
-  sessionTitle:    { fontWeight: 700, color: '#111827', fontSize: '0.95rem' },
-  sessionMeta:     { color: '#9ca3af', fontSize: '0.8rem', marginTop: '0.2rem' },
-  sessionSummary:  { color: '#6b7280', fontSize: '0.875rem', margin: '0 0 0.75rem' },
-  statusProcessed: { background: '#dcfce7', color: '#16a34a', padding: '0.2rem 0.6rem', borderRadius: 99, fontSize: '0.75rem', fontWeight: 600 },
-  statusImported:  { background: '#fef9c3', color: '#ca8a04', padding: '0.2rem 0.6rem', borderRadius: 99, fontSize: '0.75rem', fontWeight: 600 },
+  sessionTitle:    { fontWeight: 600, color: c.text, fontSize: '0.95rem' },
+  sessionMeta:     { color: c.textFaint, fontSize: '0.8rem', marginTop: '0.2rem', fontFamily: "'IBM Plex Mono', monospace" },
+  sessionSummary:  { color: c.textDim, fontSize: '0.875rem', margin: '0 0 0.75rem' },
+  statusProcessed: { background: c.greenBg, color: c.green, padding: '0.2rem 0.6rem', borderRadius: 99, fontSize: '0.75rem', fontWeight: 600, border: `1px solid ${c.greenBorder}` },
+  statusImported:  { background: c.amberBg, color: c.amber, padding: '0.2rem 0.6rem', borderRadius: 99, fontSize: '0.75rem', fontWeight: 600, border: `1px solid ${c.amberBorder}` },
   versionList:     { display: 'flex', flexDirection: 'column', gap: '0.75rem' },
-  versionCard:     { border: '1px solid #e5e7eb', borderRadius: 8, padding: '1rem' },
+  versionCard:     { border: `1px solid ${c.border}`, borderRadius: 10, padding: '1rem', background: c.bgCard },
   versionTop:      { display: 'flex', alignItems: 'center', gap: '0.75rem', marginBottom: '0.5rem' },
-  versionBadge:    { background: '#ede9fe', color: '#6d28d9', padding: '0.2rem 0.6rem', borderRadius: 99, fontSize: '0.8rem', fontWeight: 700 },
-  versionDate:     { color: '#9ca3af', fontSize: '0.8rem', flex: 1 },
-  changeSummary:   { color: '#6b7280', fontSize: '0.875rem', margin: '0 0 0.5rem' },
+  versionBadge:    { background: 'rgba(255,122,61,0.12)', color: c.orange, padding: '0.2rem 0.6rem', borderRadius: 99, fontSize: '0.8rem', fontWeight: 700, border: `1px solid ${c.orangeDim}` },
+  versionDate:     { color: c.textFaint, fontSize: '0.8rem', flex: 1, fontFamily: "'IBM Plex Mono', monospace" },
+  changeSummary:   { color: c.textDim, fontSize: '0.875rem', margin: '0 0 0.5rem' },
   details:         { marginTop: '0.5rem' },
-  detailsSummary:  { cursor: 'pointer', color: '#4f46e5', fontSize: '0.8rem' },
-  snapshotPre:     { background: '#f9fafb', padding: '0.75rem', borderRadius: 6, fontSize: '0.75rem', overflowX: 'auto', maxHeight: 300, overflowY: 'auto' },
-  exportDesc:      { color: '#6b7280', marginBottom: '1.5rem' },
+  detailsSummary:  { cursor: 'pointer', color: c.orange, fontSize: '0.8rem' },
+  snapshotPre:     { background: c.bgRaised, color: c.textDim, padding: '0.75rem', borderRadius: 8, fontSize: '0.75rem', overflowX: 'auto', maxHeight: 300, overflowY: 'auto', border: `1px solid ${c.borderSoft}` },
+  exportDesc:      { color: c.textDim, marginBottom: '1.5rem' },
   exportGrid:      { display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1rem', marginBottom: '1rem' },
-  exportCard:      { border: '1px solid #e5e7eb', borderRadius: 8, padding: '1.25rem' },
-  exportCardTitle: { fontWeight: 700, fontSize: '1rem', margin: '0 0 0.5rem', color: '#111827' },
-  exportCardDesc:  { color: '#6b7280', fontSize: '0.875rem', margin: '0 0 1rem' },
-  packageBox:      { border: '2px solid #4f46e5', borderRadius: 8, padding: '1.25rem', background: '#f5f3ff' },
-  previewBox:      { marginTop: '1rem', border: '1px solid #e5e7eb', borderRadius: 6, overflow: 'hidden' },
-  previewPre:      { margin: 0, padding: '0.75rem', fontSize: '0.75rem', overflowX: 'auto', maxHeight: 300, overflowY: 'auto', background: '#f9fafb' },
-  muted:           { color: '#9ca3af' },
+  exportCard:      { border: `1px solid ${c.border}`, borderRadius: 10, padding: '1.25rem', background: c.bgCard },
+  exportCardTitle: { fontWeight: 600, fontSize: '1rem', margin: '0 0 0.5rem', color: c.text, fontFamily: "'Space Grotesk', sans-serif" },
+  exportCardDesc:  { color: c.textDim, fontSize: '0.875rem', margin: '0 0 1rem' },
+  packageBox:      { border: `2px solid ${c.orangeDim}`, borderRadius: 10, padding: '1.25rem', background: 'rgba(255,122,61,0.06)' },
+  previewBox:      { marginTop: '1rem', border: `1px solid ${c.border}`, borderRadius: 8, overflow: 'hidden' },
+  previewPre:      { margin: 0, padding: '0.75rem', fontSize: '0.75rem', overflowX: 'auto', maxHeight: 300, overflowY: 'auto', background: c.bgRaised, color: c.textDim },
+  muted:           { color: c.textFaint },
 }
 
 const h = {
   indicatorRow:   { display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(200px, 1fr))', gap: '1rem', marginBottom: '1.25rem' },
-  indicator:      { background: '#f9fafb', border: '1px solid #e5e7eb', borderRadius: 8, padding: '1rem' },
-  indicatorLabel: { fontSize: '0.75rem', color: '#6b7280', fontWeight: 600, marginBottom: '0.5rem', textTransform: 'uppercase' },
-  indicatorBar:   { height: 8, background: '#e5e7eb', borderRadius: 99, overflow: 'hidden', marginBottom: '0.4rem' },
+  indicator:      { background: c.bgCard, border: `1px solid ${c.border}`, borderRadius: 10, padding: '1rem' },
+  indicatorLabel: { fontSize: '0.75rem', color: c.textFaint, fontWeight: 600, marginBottom: '0.5rem', textTransform: 'uppercase', letterSpacing: '0.03em' },
+  indicatorBar:   { height: 8, background: c.borderSoft, borderRadius: 99, overflow: 'hidden', marginBottom: '0.4rem' },
   indicatorFill:  { height: '100%', borderRadius: 99, transition: 'width 0.3s' },
-  indicatorVal:   { fontSize: '0.8rem', color: '#374151' },
-  statusBadge:    { padding: '0.4rem 0.75rem', borderRadius: 6, fontSize: '0.8rem', fontWeight: 700, display: 'inline-block' },
-  indicatorNum:   { fontSize: '1.5rem', fontWeight: 800, color: '#111827' },
-  missingBox:     { background: '#fef9c3', border: '1px solid #fde68a', borderRadius: 6, padding: '0.75rem 1rem', marginBottom: '1rem', fontSize: '0.875rem', color: '#78350f', display: 'flex', alignItems: 'center', gap: '0.75rem', flexWrap: 'wrap' },
-  fillBtn:        { background: '#4f46e5', color: '#fff', border: 'none', borderRadius: 6, padding: '0.3rem 0.75rem', cursor: 'pointer', fontSize: '0.8rem', fontWeight: 600 },
-  warningRow:     { background: '#fff7ed', border: '1px solid #fed7aa', borderRadius: 6, padding: '0.6rem 1rem', marginBottom: '0.5rem', fontSize: '0.875rem', color: '#9a3412' },
-  handoffCard:    { background: '#f0fdf4', border: '2px solid #86efac', borderRadius: 10, padding: '1.5rem', marginTop: '1rem' },
-  handoffTitle:   { fontWeight: 700, fontSize: '1rem', color: '#111827', margin: '0 0 0.5rem' },
-  handoffDesc:    { color: '#6b7280', fontSize: '0.875rem', margin: '0 0 1rem' },
+  indicatorVal:   { fontSize: '0.8rem', color: c.textDim },
+  statusBadge:    { padding: '0.4rem 0.75rem', borderRadius: 8, fontSize: '0.8rem', fontWeight: 700, display: 'inline-block' },
+  indicatorNum:   { fontSize: '1.5rem', fontWeight: 700, color: c.text, fontFamily: "'Space Grotesk', sans-serif" },
+  missingBox:     { background: c.amberBg, border: `1px solid ${c.amberBorder}`, borderRadius: 8, padding: '0.75rem 1rem', marginBottom: '1rem', fontSize: '0.875rem', color: c.amber, display: 'flex', alignItems: 'center', gap: '0.75rem', flexWrap: 'wrap' },
+  fillBtn:        { background: `linear-gradient(135deg, ${c.orange}, ${c.orangeHot})`, color: '#1a0d05', border: 'none', borderRadius: 8, padding: '0.3rem 0.75rem', cursor: 'pointer', fontSize: '0.8rem', fontWeight: 600 },
+  warningRow:     { background: c.amberBg, border: `1px solid ${c.amberBorder}`, borderRadius: 8, padding: '0.6rem 1rem', marginBottom: '0.5rem', fontSize: '0.875rem', color: c.amber },
+  handoffCard:    { background: c.greenBg, border: `2px solid ${c.greenBorder}`, borderRadius: 12, padding: '1.5rem', marginTop: '1rem' },
+  handoffTitle:   { fontWeight: 600, fontSize: '1rem', color: c.text, margin: '0 0 0.5rem', fontFamily: "'Space Grotesk', sans-serif" },
+  handoffDesc:    { color: c.textDim, fontSize: '0.875rem', margin: '0 0 1rem' },
 }

@@ -28,7 +28,6 @@ export default function LoginPage() {
     setError('')
     setMessage('')
 
-    // Client-side validation
     if (mode === 'signup') {
       if (!fullName.trim()) {
         setError('Please enter your full name.')
@@ -51,17 +50,12 @@ export default function LoginPage() {
         const { error } = await supabase.auth.signUp({
           email,
           password,
-          options: {
-            data: {
-              full_name: fullName.trim(),  // stored in auth.users.raw_user_meta_data
-                                           // trigger copies it to profiles table
-            }
-          }
+          options: { data: { full_name: fullName.trim() } }
         })
         if (error) throw error
         setMessage('Account created! Check your email to confirm, then sign in.')
         setMode('login')
-        setEmail(email)  // keep email pre-filled for convenience
+        setEmail(email)
         setPassword('')
       } else {
         const { error } = await supabase.auth.signInWithPassword({ email, password })
@@ -89,9 +83,9 @@ export default function LoginPage() {
 
   return (
     <div style={s.page}>
+      <div style={s.glow} />
       <div style={s.card}>
 
-        {/* Logo */}
         <div style={s.logoRow}>
           <div style={s.logoIcon}>CB</div>
           <div>
@@ -100,26 +94,17 @@ export default function LoginPage() {
           </div>
         </div>
 
-        {/* Mode tabs */}
         <div style={s.tabs}>
-          <button
-            style={mode === 'login'  ? s.tabOn : s.tabOff}
-            onClick={() => switchMode('login')}
-          >
+          <button style={mode === 'login' ? s.tabOn : s.tabOff} onClick={() => switchMode('login')}>
             Sign In
           </button>
-          <button
-            style={mode === 'signup' ? s.tabOn : s.tabOff}
-            onClick={() => switchMode('signup')}
-          >
+          <button style={mode === 'signup' ? s.tabOn : s.tabOff} onClick={() => switchMode('signup')}>
             Create Account
           </button>
         </div>
 
-        {/* Form */}
         <form onSubmit={handleSubmit} style={s.form}>
 
-          {/* Full name — signup only */}
           {mode === 'signup' && (
             <div style={s.field}>
               <label style={s.label}>Full Name</label>
@@ -135,7 +120,6 @@ export default function LoginPage() {
             </div>
           )}
 
-          {/* Email */}
           <div style={s.field}>
             <label style={s.label}>Email Address</label>
             <input
@@ -149,7 +133,6 @@ export default function LoginPage() {
             />
           </div>
 
-          {/* Password */}
           <div style={s.field}>
             <label style={s.label}>Password</label>
             <input
@@ -162,7 +145,6 @@ export default function LoginPage() {
             />
           </div>
 
-          {/* Confirm password — signup only */}
           {mode === 'signup' && (
             <div style={s.field}>
               <label style={s.label}>Confirm Password</label>
@@ -177,34 +159,23 @@ export default function LoginPage() {
             </div>
           )}
 
-          {/* Feedback */}
           {error   && <div style={s.error}>{error}</div>}
           {message && <div style={s.success}>{message}</div>}
 
-          {/* Submit */}
           <button type="submit" style={s.btn} disabled={loading}>
-            {loading
-              ? 'Please wait…'
-              : mode === 'login' ? 'Sign In' : 'Create Account'}
+            {loading ? 'Please wait…' : mode === 'login' ? 'Sign In' : 'Create Account'}
           </button>
         </form>
 
-        {/* Forgot password */}
         {mode === 'login' && (
           <button style={s.forgot} onClick={handleForgotPassword} disabled={loading}>
             Forgot password?
           </button>
         )}
 
-        {/* Switch mode hint */}
         <p style={s.switchHint}>
-          {mode === 'login'
-            ? "Don't have an account? "
-            : 'Already have an account? '}
-          <button
-            style={s.switchBtn}
-            onClick={() => switchMode(mode === 'login' ? 'signup' : 'login')}
-          >
+          {mode === 'login' ? "Don't have an account? " : 'Already have an account? '}
+          <button style={s.switchBtn} onClick={() => switchMode(mode === 'login' ? 'signup' : 'login')}>
             {mode === 'login' ? 'Sign Up' : 'Sign In'}
           </button>
         </p>
@@ -214,168 +185,81 @@ export default function LoginPage() {
   )
 }
 
+/* ── ContextBridge ember theme ── */
+const c = {
+  bg: '#130d0a', bgRaised: '#1c130e', bgCard: '#201712',
+  border: '#3a2a1e', borderSoft: '#241a13',
+  text: '#f3ece4', textDim: '#a8998b', textFaint: '#6f6053',
+  orange: '#ff7a3d', orangeHot: '#ff4d1c',
+  danger: '#f87171', dangerBg: 'rgba(248,113,113,0.10)', dangerBorder: 'rgba(248,113,113,0.25)',
+  success: '#4ade80', successBg: 'rgba(74,222,128,0.10)', successBorder: 'rgba(74,222,128,0.25)',
+}
+
 const s = {
   page: {
+    position: 'relative',
     minHeight: '100vh',
+    width: '100%',
     display: 'flex',
     alignItems: 'center',
     justifyContent: 'center',
-    background: 'linear-gradient(135deg, #ede9fe 0%, #f0f4ff 100%)',
-    fontFamily: 'system-ui, -apple-system, sans-serif',
+    background: c.bg,
+    fontFamily: "'Inter', system-ui, sans-serif",
     padding: '1rem',
+    overflow: 'hidden',
+  },
+  glow: {
+    position: 'absolute',
+    inset: 0,
+    background: `radial-gradient(600px circle at 50% 20%, rgba(255,122,61,0.10), transparent 65%)`,
+    pointerEvents: 'none',
   },
   card: {
-    background: '#fff',
+    position: 'relative',
+    background: c.bgCard,
+    border: `1px solid ${c.border}`,
     borderRadius: 16,
     padding: '2.5rem 2rem',
     width: '100%',
     maxWidth: 440,
-    boxShadow: '0 8px 40px rgba(79,70,229,0.12)',
+    boxShadow: '0 30px 80px -30px rgba(0,0,0,0.6)',
   },
-  logoRow: {
-    display: 'flex',
-    alignItems: 'center',
-    gap: '0.9rem',
-    marginBottom: '2rem',
-  },
+  logoRow: { display: 'flex', alignItems: 'center', gap: '0.9rem', marginBottom: '2rem' },
   logoIcon: {
-    width: 44,
-    height: 44,
-    background: '#4f46e5',
-    borderRadius: 10,
-    display: 'flex',
-    alignItems: 'center',
-    justifyContent: 'center',
-    color: '#fff',
-    fontWeight: 800,
-    fontSize: '0.95rem',
-    flexShrink: 0,
+    width: 44, height: 44, borderRadius: 10,
+    background: `linear-gradient(135deg, ${c.orange}, ${c.orangeHot})`,
+    display: 'flex', alignItems: 'center', justifyContent: 'center',
+    color: '#1a0d05', fontWeight: 700, fontSize: '0.95rem',
+    fontFamily: "'IBM Plex Mono', monospace", flexShrink: 0,
   },
-  logoText: {
-    fontSize: '1.3rem',
-    fontWeight: 800,
-    color: '#1e1b4b',
-    margin: 0,
-    lineHeight: 1.2,
-  },
-  logoSub: {
-    color: '#6b7280',
-    margin: 0,
-    fontSize: '0.78rem',
-    marginTop: 2,
-  },
-  tabs: {
-    display: 'flex',
-    background: '#f3f4f6',
-    borderRadius: 10,
-    padding: 4,
-    marginBottom: '1.75rem',
-    gap: 4,
-  },
+  logoText: { fontSize: '1.3rem', fontWeight: 700, fontFamily: "'Space Grotesk', sans-serif", color: c.text, margin: 0, lineHeight: 1.2 },
+  logoSub:  { color: c.textFaint, margin: 0, fontSize: '0.78rem', marginTop: 2 },
+
+  tabs: { display: 'flex', background: c.bgRaised, borderRadius: 10, padding: 4, marginBottom: '1.75rem', gap: 4, border: `1px solid ${c.borderSoft}` },
   tabOn: {
-    flex: 1,
-    padding: '0.55rem',
-    background: '#fff',
-    border: 'none',
-    borderRadius: 7,
-    cursor: 'pointer',
-    fontWeight: 700,
-    fontSize: '0.9rem',
-    color: '#4f46e5',
-    boxShadow: '0 1px 4px rgba(0,0,0,0.1)',
-    transition: 'all 0.15s',
+    flex: 1, padding: '0.55rem', background: `linear-gradient(135deg, ${c.orange}, ${c.orangeHot})`,
+    border: 'none', borderRadius: 7, cursor: 'pointer', fontWeight: 700,
+    fontSize: '0.9rem', color: '#1a0d05', transition: 'all 0.15s',
   },
-  tabOff: {
-    flex: 1,
-    padding: '0.55rem',
-    background: 'none',
-    border: 'none',
-    borderRadius: 7,
-    cursor: 'pointer',
-    fontSize: '0.9rem',
-    color: '#6b7280',
-    transition: 'all 0.15s',
-  },
-  form: {
-    display: 'flex',
-    flexDirection: 'column',
-    gap: '1rem',
-  },
-  field: {
-    display: 'flex',
-    flexDirection: 'column',
-    gap: '0.35rem',
-  },
-  label: {
-    fontSize: '0.82rem',
-    fontWeight: 600,
-    color: '#374151',
-  },
+  tabOff: { flex: 1, padding: '0.55rem', background: 'none', border: 'none', borderRadius: 7, cursor: 'pointer', fontSize: '0.9rem', color: c.textDim, transition: 'all 0.15s' },
+
+  form: { display: 'flex', flexDirection: 'column', gap: '1rem' },
+  field: { display: 'flex', flexDirection: 'column', gap: '0.35rem' },
+  label: { fontSize: '0.82rem', fontWeight: 600, color: c.textDim },
   input: {
-    padding: '0.72rem 1rem',
-    border: '1.5px solid #e5e7eb',
-    borderRadius: 8,
-    fontSize: '0.95rem',
-    outline: 'none',
-    color: '#111827',
-    background: '#fafafa',
-    transition: 'border-color 0.15s',
-    boxSizing: 'border-box',
-    width: '100%',
+    padding: '0.72rem 1rem', border: `1.5px solid ${c.border}`, borderRadius: 8,
+    fontSize: '0.95rem', outline: 'none', color: c.text, background: c.bgRaised,
+    transition: 'border-color 0.15s', boxSizing: 'border-box', width: '100%',
+    fontFamily: 'inherit',
   },
   btn: {
-    padding: '0.82rem',
-    background: '#4f46e5',
-    color: '#fff',
-    border: 'none',
-    borderRadius: 9,
-    cursor: 'pointer',
-    fontSize: '1rem',
-    fontWeight: 700,
-    marginTop: '0.25rem',
-    transition: 'background 0.15s',
+    padding: '0.82rem', background: `linear-gradient(135deg, ${c.orange}, ${c.orangeHot})`,
+    color: '#1a0d05', border: 'none', borderRadius: 9, cursor: 'pointer',
+    fontSize: '1rem', fontWeight: 700, marginTop: '0.25rem', transition: 'filter 0.15s',
   },
-  error: {
-    padding: '0.65rem 0.9rem',
-    background: '#fef2f2',
-    color: '#dc2626',
-    borderRadius: 7,
-    fontSize: '0.875rem',
-    border: '1px solid #fecaca',
-  },
-  success: {
-    padding: '0.65rem 0.9rem',
-    background: '#f0fdf4',
-    color: '#16a34a',
-    borderRadius: 7,
-    fontSize: '0.875rem',
-    border: '1px solid #bbf7d0',
-  },
-  forgot: {
-    display: 'block',
-    width: '100%',
-    marginTop: '0.9rem',
-    background: 'none',
-    border: 'none',
-    color: '#6b7280',
-    cursor: 'pointer',
-    fontSize: '0.85rem',
-    textAlign: 'center',
-  },
-  switchHint: {
-    textAlign: 'center',
-    color: '#6b7280',
-    fontSize: '0.875rem',
-    marginTop: '1.25rem',
-    marginBottom: 0,
-  },
-  switchBtn: {
-    background: 'none',
-    border: 'none',
-    color: '#4f46e5',
-    cursor: 'pointer',
-    fontSize: '0.875rem',
-    fontWeight: 600,
-    padding: 0,
-  },
+  error:   { padding: '0.65rem 0.9rem', background: c.dangerBg, color: c.danger, borderRadius: 7, fontSize: '0.875rem', border: `1px solid ${c.dangerBorder}` },
+  success: { padding: '0.65rem 0.9rem', background: c.successBg, color: c.success, borderRadius: 7, fontSize: '0.875rem', border: `1px solid ${c.successBorder}` },
+  forgot: { display: 'block', width: '100%', marginTop: '0.9rem', background: 'none', border: 'none', color: c.textFaint, cursor: 'pointer', fontSize: '0.85rem', textAlign: 'center' },
+  switchHint: { textAlign: 'center', color: c.textFaint, fontSize: '0.875rem', marginTop: '1.25rem', marginBottom: 0 },
+  switchBtn: { background: 'none', border: 'none', color: c.orange, cursor: 'pointer', fontSize: '0.875rem', fontWeight: 600, padding: 0 },
 }
